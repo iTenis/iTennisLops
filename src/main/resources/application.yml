@@ -1,0 +1,49 @@
+server:
+  port: 8081
+
+
+itennis:
+  pxeServer:
+    ip: 192.168.0.1
+    netmask: 255.255.255.0
+    user: root
+    password: 123456
+    interface: eth0
+    os: centos
+    version: 7
+    iso: /opt/xx.iso
+
+  installOS:
+    os: centos
+    version: 7
+    password: 123456
+    iso: /opt/xx.iso
+
+  partitions:
+    - {path: /,fstype: ext4,size: 20480,ondisk: sda}
+    - {path: /tmp,fstype: ext4,size: 10240,ondisk: sda}
+    - {path: /var,fstype: ext4,size: 10240,ondisk: sda}
+    - {path: /var/log,fstype: ext4,size: 153600,ondisk: sda}
+    - {path: /srv/BigData,fstype: ext4,size: 61440,ondisk: sda}
+    - {path: /opt,fstype: ext4,size: 1,ondisk: sda}
+
+  dhcpServer:
+    ip: 192.168.0.1
+    netmask: 255.255.255.0
+    interface: eth0
+    subnet: 192.168.0.0
+    start: 192.168.0.100
+    end: 192.168.0.200
+
+  packages:
+    - tftp-server
+    - dhcp
+    - xinetd
+    - httpd
+    - redhat-lsb
+    - expect
+    - syslinux
+    - tree
+    - vsftpd
+    - ipmitool
+    - expect
