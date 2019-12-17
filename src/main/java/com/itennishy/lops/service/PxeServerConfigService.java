@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ public class PxeServerConfigService {
 
             String currentPath = new FileUtils().getJarPath();
             // 配置tftp服务器
+
             jSchUtil.execCmd("sed -i '/disable/s/yes/no/' /etc/xinetd.d/tftp");
             jSchUtil.execCmd("cp -rvf /etc/dhcp/dhcpd.conf /tmp/dhcpd.conf.bak");
             jSchUtil.execCmd("(\n" +
@@ -78,7 +80,7 @@ public class PxeServerConfigService {
 
             jSchUtil.execCmd("mkdir -p /var/lib/tftpboot/pxelinux/pxelinux.cfg");
             jSchUtil.execCmd("mkdir -p /var/lib/tftpboot/uefi");
-            jSchUtil.execCmd("mkdir -p /var/www/html/{kickstarts,os}");
+            jSchUtil.execCmd("mkdir -p /var/www/html/{kickstarts,os,driver}");
 
             jSchUtil.execCmd("mkdir -p /var/www/html/os/" + osversionPath);
             jSchUtil.execCmd("mkdir -p /var/lib/tftpboot/images/" + osversionPath);
@@ -173,7 +175,6 @@ public class PxeServerConfigService {
                 jSchUtil.execCmd("echo " + line + " >> /var/www/html/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg");
             }
 
-
             jSchUtil.execCmd("(\n" +
                     "cat << EOF\n" +
                     "%packages --ignoremissing\n" +
@@ -202,16 +203,20 @@ public class PxeServerConfigService {
                     "EOF\n" +
                     ") >> /var/www/html/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg");
 
+            if (iTennisConfig.getInstallOS().get("driver") != null) {
+                jSchUtil.execCmd("cp -rvf " + iTennisConfig.getInstallOS().get("driver") + " /var/www/html/driver/");
+                jSchUtil.execCmd("sed -i \"10a\\driverdisk --source=http://" + serverip + "/driver/" + new File(iTennisConfig.getInstallOS().get("driver")).getName() + "\" /var/www/html/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg");
+            }
 
             yumConfigService.setMountISOWithConfig(jSchUtil, iTennisConfig.getInstallOS().get("iso"), "/var/www/html/os/" + osversionPath);
 
             jSchUtil.execCmd("sed -i \"s/SELINUX=.*$/SELINUX=disabled/\" /etc/selinux/config");
             jSchUtil.execCmd("setenforce 0");
-            if("6".equals(iTennisConfig.getPxeServer().get("version"))){
+            if ("6".equals(iTennisConfig.getPxeServer().get("version"))) {
                 jSchUtil.execCmd("sed -i \"s/uefi\\/shim.efi/efi\\/BOOTX64.efi/g\" /etc/dhcp/dhcpd.conf");
                 jSchUtil.execCmd("service iptables stop");
                 jSchUtil.execCmd("chkconfig iptables off");
-            }else {
+            } else {
                 jSchUtil.execCmd("sed -i \"s/efi\\/BOOTX64.efi/uefi\\/shim.efi/g\" /etc/dhcp/dhcpd.conf");
                 jSchUtil.execCmd("service firewalld stop");
                 jSchUtil.execCmd("chkconfig firewalld off");

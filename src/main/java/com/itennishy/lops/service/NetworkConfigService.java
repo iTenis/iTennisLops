@@ -18,7 +18,6 @@ public class NetworkConfigService {
      */
     public void SetNetwork(JSchExecutor jSchUtil, String interfaceName, String ipAddr, String ipNetmask) {
         try {
-            jSchUtil.connect();
             String netfile = "/etc/sysconfig/network-scripts/ifcfg-" + interfaceName;
             if (jSchUtil.isLinkExist(netfile)) {
                 jSchUtil.execCmd("cp -rvf " + netfile + " /tmp/ifcfg-" + interfaceName + "_" + System.currentTimeMillis());
@@ -39,13 +38,6 @@ public class NetworkConfigService {
             System.out.println(jSchUtil.getStandardOutput());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            jSchUtil.disconnect();
         }
-    }
-
-    public static void main(String[] args) {
-        JSchExecutor jSchUtil = new JSchExecutor("root", "19931103xhs-", "115.159.0.166");
-        new NetworkConfigService().SetNetwork(jSchUtil, "eth2", "12.0.0.1", "255.255.255.0");
     }
 }

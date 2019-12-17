@@ -15,7 +15,6 @@ public class InstallPackagesService {
 
     public void BeginInstallPackages(JSchExecutor jSchUtil) {
         try {
-            jSchUtil.connect();
             for (String aPackage : iTennisConfig.getPackages()) {
                 int status = jSchUtil.execCmd("yum list installed | grep " + aPackage);
                 if (status != 0) {
@@ -27,13 +26,6 @@ public class InstallPackagesService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            jSchUtil.disconnect();
         }
-    }
-
-    public static void main(String[] args) {
-        JSchExecutor jSchUtil = new JSchExecutor("root", "19931103xhs-", "115.159.0.166");
-        new InstallPackagesService().BeginInstallPackages(jSchUtil);
     }
 }

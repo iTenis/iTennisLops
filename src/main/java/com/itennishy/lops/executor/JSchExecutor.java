@@ -329,20 +329,4 @@ public class JSchExecutor {
         }
         return isLinkExistFlag;
     }
-
-    public static void main(String[] args) {
-        JSchExecutor jSchUtil = new JSchExecutor("xhsh", "xhsh123", "47.110.32.6");
-        try {
-            jSchUtil.connect();
-//            jSchUtil.shellCmd("ping -c 10 127.0.0.1");
-            jSchUtil.execCmd("ls /var");
-            System.out.println(jSchUtil.getStandardOutput());
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jSchUtil.disconnect();
-        }
-
-    }
-
 }

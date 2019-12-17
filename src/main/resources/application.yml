@@ -2,23 +2,27 @@ server:
   port: 8081
 
 
+# pxe服务器的信息
 itennis:
   pxeServer:
-    ip: 192.168.0.1
-    netmask: 255.255.255.0
+    ip: 10.9.9.99
+    netmask: 255.0.0.0
     user: root
     password: 123456
-    interface: eth0
+    interface: ens34
     os: centos
     version: 7
     iso: /opt/xx.iso
 
+  # pxe安装的操作系统信息
   installOS:
     os: centos
     version: 7
     password: 123456
     iso: /opt/xx.iso
+    driver: /opt/xx.iso
 
+  # pxe安装的操作系统的分区
   partitions:
     - {path: /,fstype: ext4,size: 20480,ondisk: sda}
     - {path: /tmp,fstype: ext4,size: 10240,ondisk: sda}
@@ -27,14 +31,16 @@ itennis:
     - {path: /srv/BigData,fstype: ext4,size: 61440,ondisk: sda}
     - {path: /opt,fstype: ext4,size: 1,ondisk: sda}
 
+  # DHCP服务器的信息
   dhcpServer:
-    ip: 192.168.0.1
-    netmask: 255.255.255.0
-    interface: eth0
-    subnet: 192.168.0.0
-    start: 192.168.0.100
-    end: 192.168.0.200
+    ip: 10.9.9.99
+    netmask: 255.0.0.0
+    interface: ens34
+    subnet: 10.0.0.0
+    start: 10.9.9.100
+    end: 10.9.9.200
 
+  # 系统需要安装的软件包
   packages:
     - tftp-server
     - dhcp
@@ -47,3 +53,11 @@ itennis:
     - vsftpd
     - ipmitool
     - expect
+
+
+logging:
+  level:
+    com.itennishy.lops: info
+  path: logs/
+  file:
+    max-size: 1GB
