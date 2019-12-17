@@ -20,23 +20,31 @@ public class PxeController {
 
     @RequestMapping("/local")
     public JsonData setPxeLocalServer() {
+        JSchExecutor jSchUtil = new JSchExecutor();
         try {
-            JSchExecutor jSchUtil = new JSchExecutor(iTennisConfig.getPxeServer().get("user"), iTennisConfig.getPxeServer().get("password"), "127.0.0.1");
+            jSchUtil = new JSchExecutor(iTennisConfig.getPxeServer().get("user"), iTennisConfig.getPxeServer().get("password"), "127.0.0.1");
+            jSchUtil.connect();
             pxeServerConfigService.ConfigPxeServer(jSchUtil);
-            return JsonData.BuildSuccess();
+            return JsonData.BuildSuccess("PXE服务器配置成功");
         } catch (Exception e) {
             return JsonData.BuildError(50001, e.getMessage());
+        } finally {
+            jSchUtil.disconnect();
         }
     }
 
     @RequestMapping("/remote")
     public JsonData setPxeRemoteServer(String ip, String user, String pwd) {
+        JSchExecutor jSchUtil = new JSchExecutor();
         try {
-            JSchExecutor jSchUtil = new JSchExecutor(user, pwd, ip);
+            jSchUtil = new JSchExecutor(user, pwd, ip);
+            jSchUtil.connect();
             pxeServerConfigService.ConfigPxeServer(jSchUtil);
-            return JsonData.BuildSuccess();
+            return JsonData.BuildSuccess("PXE服务器配置成功");
         } catch (Exception e) {
             return JsonData.BuildError(50001, e.getMessage());
+        } finally {
+            jSchUtil.disconnect();
         }
     }
 }

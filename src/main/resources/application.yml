@@ -1,26 +1,25 @@
 server:
   port: 8081
 
-
 # pxe服务器的信息
 itennis:
   pxeServer:
     ip: 10.9.9.99
     netmask: 255.0.0.0
     user: root
-    password: 123456
-    interface: ens34
+    password: 1234
+    interface: ens33
     os: centos
     version: 7
-    iso: /opt/xx.iso
+    iso: /root/Desktop/CentOS-7-x86_64-DVD-1708.iso
 
   # pxe安装的操作系统信息
   installOS:
     os: centos
     version: 7
     password: 123456
-    iso: /opt/xx.iso
-    driver: /opt/xx.iso
+    iso: /root/Desktop/CentOS-7-x86_64-DVD-1708.iso
+    driver:
 
   # pxe安装的操作系统的分区
   partitions:
@@ -54,7 +53,14 @@ itennis:
     - ipmitool
     - expect
 
+# 用来刷新配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: env,refresh
 
+# 用来配置日志级别
 logging:
   level:
     com.itennishy.lops: info

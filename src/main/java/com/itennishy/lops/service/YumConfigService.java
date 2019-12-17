@@ -1,11 +1,8 @@
 package com.itennishy.lops.service;
 
 import com.itennishy.lops.executor.JSchExecutor;
-import com.itennishy.lops.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
 
 @Service
 @Slf4j
@@ -66,14 +63,14 @@ public class YumConfigService {
      */
     public void setMountISOWithConfig(JSchExecutor jSchUtil, String isoFileAndPath, String mediapath) {
         try {
-            if (new File(isoFileAndPath).exists()) {
+            if (jSchUtil.isLinkExist(isoFileAndPath)) {
                 jSchUtil.execCmd("umount  " + mediapath);
                 log.info("卸载目录成功:" + mediapath);
                 int status = jSchUtil.execCmd("mount -o loop " + isoFileAndPath + " " + mediapath);
                 if (status == 0)
                     log.info("本地镜像文件挂载成功!");
                 else
-                    log.error("本地镜像文件挂载失败!");
+                    log.warn("手动检查本地镜像文件挂载失败!");
             } else {
                 log.error("本地镜像文件不存在，请重试:" + isoFileAndPath);
             }

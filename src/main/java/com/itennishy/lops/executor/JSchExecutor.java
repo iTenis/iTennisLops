@@ -5,11 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Scanner;
 import java.util.Vector;
 
 @Slf4j
 public class JSchExecutor {
 
+    private static final int TIME_OUT = 30 * 1000;
     private String charset = "UTF-8"; // 设置编码格式
     private String user; // 用户名
     private String passwd; // 登录密码
@@ -21,6 +23,9 @@ public class JSchExecutor {
     private Vector<String> stdout;
 
     private ChannelSftp sftp;
+
+    public JSchExecutor() {
+    }
 
     /**
      * @param user   用户名
@@ -65,6 +70,7 @@ public class JSchExecutor {
         java.util.Properties config = new java.util.Properties();
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
+        session.setTimeout(TIME_OUT);
         session.connect();
         Channel channel = session.openChannel("sftp");
         channel.connect();
@@ -198,29 +204,120 @@ public class JSchExecutor {
         }
     }
 
-    /**
-     * 上传文件
-     */
-    public void uploadFile(String local, String remote) throws Exception {
-        File file = new File(local);
-        if (file.isDirectory()) {
-            throw new RuntimeException(local + "  is not a file");
-        }
 
-        InputStream inputStream = null;
+    public void upLoadFile(String sPath, String dPath) {
         try {
-            String rpath = remote.substring(0, remote.lastIndexOf("/") + 1);
-            if (!isDirExist(rpath)) {
-                createDir(rpath);
+            try {
+                sftp.cd(dPath);
+//                Scanner scanner = new Scanner(System.in);
+//                System.out.println(dPath + ":此目录已存在,文件可能会被覆盖!是否继续y/n?");
+//                String next = scanner.next();
+//                if (!next.toLowerCase().equals("y")) {
+//                    return;
+//                }
+
+            } catch (SftpException e) {
+
+                sftp.mkdir(dPath);
+                sftp.cd(dPath);
+
             }
-            inputStream = new FileInputStream(file);
-            sftp.setInputStream(inputStream);
-            sftp.put(inputStream, remote);
+            File file = new File(sPath);
+            copyFile(sftp, file, sftp.pwd());
         } catch (Exception e) {
-            throw e;
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
+            e.printStackTrace();
+        }
+    }
+
+    public void copyFile(ChannelSftp sftp, File file, String pwd) {
+
+        if (file.isDirectory()) {
+            File[] list = file.listFiles();
+            try {
+                try {
+                    String fileName = file.getName();
+                    sftp.cd(pwd);
+                    log.info("正在创建目录:" + sftp.pwd() + "/" + fileName);
+                    sftp.mkdir(fileName);
+                    log.info("目录创建成功:" + sftp.pwd() + "/" + fileName);
+                } catch (Exception e) {
+                }
+                pwd = pwd + "/" + file.getName();
+                try {
+
+                    sftp.cd(file.getName());
+                } catch (SftpException e) {
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (int i = 0; i < list.length; i++) {
+                copyFile(sftp, list[i], pwd);
+            }
+        } else {
+
+            try {
+                sftp.cd(pwd);
+
+            } catch (SftpException e1) {
+                e1.printStackTrace();
+            }
+            log.info("正在复制文件:" + file.getAbsolutePath());
+            InputStream instream = null;
+            OutputStream outstream = null;
+            try {
+                outstream = sftp.put(file.getName());
+                instream = new FileInputStream(file);
+
+                byte b[] = new byte[1024];
+                int n;
+                try {
+                    while ((n = instream.read(b)) != -1) {
+                        outstream.write(b, 0, n);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            } catch (SftpException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    outstream.flush();
+                    outstream.close();
+                    instream.close();
+
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 下载文件
+     */
+    public void downloadDirAndFile(String remote, String local) throws Exception {
+        try {
+            downloadFile(remote, local);
+        } catch (Exception e) {
+            Vector<ChannelSftp.LsEntry> fileAndFolderList = sftp.ls(remote);
+            for (ChannelSftp.LsEntry item : fileAndFolderList) {
+                if (!item.getAttrs().isDir()) {
+//                if (!(new File(local + "/" + item.getFilename())).exists() || (item.getAttrs().getMTime() > Long.valueOf(new File(local + "/" + item.getFilename()).lastModified() / (long) 1000).intValue())) {
+                    new File(local + "/" + item.getFilename());
+                    sftp.get(remote + "/" + item.getFilename(), local + "/" + item.getFilename());
+                    log.info("下载成功:" + item.getFilename());
+//                }
+                } else if (!(".".equals(item.getFilename()) || "..".equals(item.getFilename()))) {
+                    new File(local + "/" + item.getFilename()).mkdirs();
+                    downloadDirAndFile(remote + "/" + item.getFilename(),
+                            local + "/" + item.getFilename());
+                }
             }
         }
     }
@@ -231,9 +328,9 @@ public class JSchExecutor {
     public void downloadFile(String remote, String local) throws Exception {
         OutputStream outputStream = null;
         try {
-            sftp.connect(5000);
             outputStream = new FileOutputStream(new File(local));
             sftp.get(remote, outputStream);
+            log.info("下载文件成功:" + remote);
             outputStream.flush();
         } catch (Exception e) {
             throw e;
@@ -329,4 +426,5 @@ public class JSchExecutor {
         }
         return isLinkExistFlag;
     }
+
 }
