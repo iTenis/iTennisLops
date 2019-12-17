@@ -63,6 +63,10 @@ public class PxeServerConfigService {
                 "max-lease-time 7200;\n" +
                 "#ddns-update-style interim;\n" +
                 "subnet " + iTennisConfig.getDhcpServer().get("subnet") + " netmask " + iTennisConfig.getDhcpServer().get("netmask") + " {\n" +
+                "        range "+iTennisConfig.getDhcpServer().get("start")+" "+iTennisConfig.getDhcpServer().get("end")+";\n" +
+                "        option routers "+serverip+";\n" +
+                "        class \"pxeclients\" {\n" +
+                "        match if substring (option vendor-class-identifier, 0, 9) = \"PXEClient\";\n"+
                 "        next-server " + serverip + ";\n" +
                 "        if option client-system-arch = 00:07 or option client-system-arch = 00:09 {\n" +
                 "         filename \"uefi/shim.efi\";\n" +
