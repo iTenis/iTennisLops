@@ -95,15 +95,13 @@ public class PxeServerConfigService {
                 jSchUtil.execCmd("mkdir -p /var/www/html/os/" + osversionPath);
                 jSchUtil.execCmd("mkdir -p /var/lib/tftpboot/images/" + osversionPath);
 
-//        jSchUtil.execCmd("cp -rvf " + currentPath + "/boot/pxelinux /var/lib/tftpboot/");
-//        jSchUtil.execCmd("cp -rvf " + currentPath + "/boot/uefi /var/lib/tftpboot/");
-//        jSchUtil.execCmd("cp -rvf " + currentPath + "/boot/efi /var/lib/tftpboot/");
-//        jSchUtil.execCmd("cp -rvf " + currentPath + "/boot/kickstarts /var/www/html/");
+
 
                 linkedQueue.add("分发系统引导文件");
-                jSchUtil.upLoadFile(currentPath + "/boot/pxelinux", "/var/lib/tftpboot/pxelinux");
-                jSchUtil.upLoadFile(currentPath + "/boot/uefi", "/var/lib/tftpboot/uefi");
-                jSchUtil.upLoadFile(currentPath + "/boot/efi", "/var/lib/tftpboot/efi");
+
+                jSchUtil.upLoadFile(currentPath + "/boot/pxelinux", "/var/lib/tftpboot",0);
+                jSchUtil.upLoadFile(currentPath + "/boot/uefi", "/var/lib/tftpboot",0);
+                jSchUtil.upLoadFile(currentPath + "/boot/efi", "/var/lib/tftpboot",0);
 
                 linkedQueue.add("配置默认引导MENU");
                 jSchUtil.execCmd("(\n" +
@@ -115,7 +113,7 @@ public class PxeServerConfigService {
                         "label autolinux\n" +
                         "\tmenu label Auto ^Install " + serveros + "/" + " Linux\n" +
                         "\tkernel ../images/" + osversionPath + "/vmlinuz\n" +
-                        "\tappend initrd=../images/" + osversionPath + "/initrd.img ip=dhcp repo=http://" + serverip + "/os/" + osversionPath + " ks=http://" + serverip + "/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg ksdevice=" + iTennisConfig.getDhcpServer().get("interface") + "\n" +
+                        "\tappend initrd=../images/" + osversionPath + "/initrd.img ip=dhcp repo=http://" + serverip + "/os/" + osversionPath + " ks=http://" + serverip + "/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg ksdevice=" + iTennisConfig.getInstallOS().get("interface") + "\n" +
                         "label manuallinux\n" +
                         "      menu label Manual ^Install " + serveros + " Linux\n" +
                         "      kernel ../images/" + osversionPath + "/vmlinuz\n" +
@@ -134,7 +132,7 @@ public class PxeServerConfigService {
                         "timeout=5\n" +
                         "title " + serveros + " UEFI\n" +
                         "\troot (nd)\n" +
-                        "        kernel /../images/" + osversionPath + "/vmlinuz ip=dhcp ks=http://" + serverip + "/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg repo=http://" + serverip + "/os/" + osversionPath + " ksdevice=" + iTennisConfig.getDhcpServer().get("interface") + "\n" +
+                        "        kernel /../images/" + osversionPath + "/vmlinuz ip=dhcp ks=http://" + serverip + "/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg repo=http://" + serverip + "/os/" + osversionPath + " ksdevice=" + iTennisConfig.getInstallOS().get("interface") + "\n" +
                         "        initrd /../images/" + osversionPath + "/initrd.img\n" +
                         "EOF\n" +
                         ") > /var/lib/tftpboot/efi/efidefault");
@@ -144,11 +142,11 @@ public class PxeServerConfigService {
                         "cat << EOF\n" +
                         "set timeout=5\n" +
                         "menuentry 'Auto Install " + serveros + " Min UEFI' {\n" +
-                        "        linuxefi /uefi/../images/" + osversionPath + "/vmlinuz ip=dhcp inst.repo=http://" + serverip + "/os/" + osversionPath + " inst.ks=http://" + serverip + "/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg ksdevice=" + iTennisConfig.getDhcpServer().get("interface") + "\n" +
+                        "        linuxefi /uefi/../images/" + osversionPath + "/vmlinuz ip=dhcp inst.repo=http://" + serverip + "/os/" + osversionPath + " inst.ks=http://" + serverip + "/kickstarts/" + serveros + "_" + serverversion + "_ks.cfg ksdevice=" + iTennisConfig.getInstallOS().get("interface") + "\n" +
                         "        initrdefi /uefi/../images/" + osversionPath + "/initrd.img\n" +
                         "}\n" +
                         "menuentry 'Manual Install " + serveros + " Min UEFI' {\n" +
-                        "        linuxefi /uefi/../images/" + osversionPath + "/vmlinuz ip=dhcp inst.repo=http://" + serverip + "/os/" + osversionPath + " ksdevice=" + iTennisConfig.getDhcpServer().get("interface") + "\n" +
+                        "        linuxefi /uefi/../images/" + osversionPath + "/vmlinuz ip=dhcp inst.repo=http://" + serverip + "/os/" + osversionPath + " ksdevice=" + iTennisConfig.getInstallOS().get("interface") + "\n" +
                         "        initrdefi /uefi/../images/" + osversionPath + "/initrd.img\n" +
                         "}\n" +
                         "EOF\n" +

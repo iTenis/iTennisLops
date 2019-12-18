@@ -43,7 +43,7 @@ public class YumConfigService {
                 "EOF\n" +
                 ") > /etc/yum.repos.d/local.repo";
         jSchUtil.execCmd(cmd);
-        log.debug("配置文件应该修改完毕:" + "local.repo");
+        log.debug("----配置文件应该修改完毕:" + "local.repo");
     }
 
     /**
@@ -59,9 +59,9 @@ public class YumConfigService {
             log.debug("卸载目录成功:" + mediapath);
             int status = jSchUtil.execCmd("mount -o loop " + isoFileAndPath + " " + mediapath);
             if (status == 0)
-                log.debug("本地镜像文件挂载成功!");
+                log.warn("----本地镜像文件挂载成功!");
             else
-                log.warn("手动检查本地镜像文件挂载失败!");
+                log.warn("----手动检查本地镜像文件挂载失败!");
         } else {
             log.error("本地镜像文件不存在，请重试:" + isoFileAndPath);
         }

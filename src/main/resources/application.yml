@@ -4,20 +4,21 @@ server:
 # pxe服务器的信息
 itennis:
   pxeServer:
-    ip: 10.9.9.99
-    netmask: 255.0.0.0
+    ip: 192.168.0.199
+    netmask: 255.255.255.0
     user: root
-    password: 1234
+    password: 123456
     interface: ens33
-    os: centos
-    version: 7
+    os: redhat
+    version: 7.3
     iso: /opt/rhel-server-7.3-x86_64-dvd.iso
 
   # pxe安装的操作系统信息
   installOS:
-    os: centos
-    version: 7
+    os: redhat
+    version: 7.3
     password: 123456
+    interface: ens33
     iso: /opt/rhel-server-7.3-x86_64-dvd.iso
     driver:
 
@@ -32,12 +33,11 @@ itennis:
 
   # DHCP服务器的信息
   dhcpServer:
-    ip: 10.9.9.99
-    netmask: 255.0.0.0
-    interface: ens34
-    subnet: 10.0.0.0
-    start: 10.9.9.100
-    end: 10.9.9.200
+    ip: 192.168.0.199
+    netmask: 255.255.255.0
+    subnet: 192.168.0.0
+    start: 192.168.0.100
+    end: 192.168.0.200
 
   # 系统需要安装的软件包
   packages:

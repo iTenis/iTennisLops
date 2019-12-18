@@ -205,28 +205,23 @@ public class JSchExecutor {
     }
 
 
-    public void upLoadFile(String sPath, String dPath) {
+    public void upLoadFile(String sPath, String dPath, Integer ack) throws Exception {
         try {
-            try {
-                sftp.cd(dPath);
-//                Scanner scanner = new Scanner(System.in);
-//                System.out.println(dPath + ":此目录已存在,文件可能会被覆盖!是否继续y/n?");
-//                String next = scanner.next();
-//                if (!next.toLowerCase().equals("y")) {
-//                    return;
-//                }
-
-            } catch (SftpException e) {
-
-                sftp.mkdir(dPath);
-                sftp.cd(dPath);
-
+            sftp.cd(dPath);
+            if (ack == 1) {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println(dPath + ":此目录已存在,文件可能会被覆盖!是否继续y/n?");
+                String next = scanner.next();
+                if (!next.toLowerCase().equals("y")) {
+                    return;
+                }
             }
-            File file = new File(sPath);
-            copyFile(sftp, file, sftp.pwd());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SftpException e) {
+            sftp.mkdir(dPath);
+            sftp.cd(dPath);
         }
+        File file = new File(sPath);
+        copyFile(sftp, file, sftp.pwd());
     }
 
     public void copyFile(ChannelSftp sftp, File file, String pwd) {
@@ -263,7 +258,7 @@ public class JSchExecutor {
             } catch (SftpException e1) {
                 e1.printStackTrace();
             }
-            log.info("正在复制文件:" + file.getAbsolutePath());
+            log.warn("----正在复制文件从" + file.getAbsolutePath() + "到目标路径:" + pwd);
             InputStream instream = null;
             OutputStream outstream = null;
             try {
