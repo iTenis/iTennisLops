@@ -18,10 +18,10 @@ public class InstallPackagesService {
             for (String aPackage : iTennisConfig.getPackages()) {
                 int status = jSchUtil.execCmd("yum list installed | grep " + aPackage);
                 if (status != 0) {
-                    log.info("正在安装:" + aPackage);
+                    log.debug("正在安装:" + aPackage);
                     jSchUtil.execCmd("yum install -y " + aPackage);
                 } else {
-                    log.info("软件已经安装过:" + aPackage);
+                    log.debug("软件已经安装过:" + aPackage);
                 }
             }
         } catch (Exception e) {

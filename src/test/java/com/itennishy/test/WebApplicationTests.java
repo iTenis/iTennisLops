@@ -1,15 +1,19 @@
 package com.itennishy.test;
 
-import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.runMainLops;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = runMainLops.class)
-public class WebsocketApplicationTests {
+public class WebApplicationTests {
 
     @Test
     public void contextLoads() throws Exception {
@@ -27,6 +31,31 @@ public class WebsocketApplicationTests {
 //        } finally {
 //            jSchUtil.disconnect();
 //        }
+    }
+
+    private ConcurrentLinkedQueue<String> linkedQueue = new ConcurrentLinkedQueue<>();
+
+
+    @Test
+    public void testLinkRequest() {
+//        AtomicBoolean flag = new AtomicBoolean(true);
+//        new Thread(() -> {
+//            for (int i = 1; i < 10; i++) {
+//                linkedQueue.add("STEP" + i + ":正在执行。。。");
+//                try {
+//                    TimeUnit.SECONDS.sleep(1);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            flag.set(false);
+//        }).start();
+//        while (flag.get()) {
+//            String txt = linkedQueue.poll();
+//            if (txt != null)
+//                System.out.println(txt);
+//        }
+//        System.out.println("结束");
     }
 
 

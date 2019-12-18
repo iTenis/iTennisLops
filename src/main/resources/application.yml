@@ -11,14 +11,14 @@ itennis:
     interface: ens33
     os: centos
     version: 7
-    iso: /root/Desktop/CentOS-7-x86_64-DVD-1708.iso
+    iso: /opt/rhel-server-7.3-x86_64-dvd.iso
 
   # pxe安装的操作系统信息
   installOS:
     os: centos
     version: 7
     password: 123456
-    iso: /root/Desktop/CentOS-7-x86_64-DVD-1708.iso
+    iso: /opt/rhel-server-7.3-x86_64-dvd.iso
     driver:
 
   # pxe安装的操作系统的分区
@@ -63,7 +63,10 @@ management:
 # 用来配置日志级别
 logging:
   level:
+    com.itennishy.lops.executor.JSchExecutor: warn
     com.itennishy.lops: info
-  path: logs/
   file:
+    path: logs/
+    name: itennis.log
     max-size: 1GB
+    max-history: 7

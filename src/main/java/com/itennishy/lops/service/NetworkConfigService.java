@@ -30,12 +30,10 @@ public class NetworkConfigService {
                 jSchUtil.execCmd("echo \"BOOTPROTO=static\" >> " + netfile);
                 jSchUtil.execCmd("echo \"IPADDR=" + ipAddr + "\" >> " + netfile);
                 jSchUtil.execCmd("echo \"NETMASK=" + ipNetmask + "\" >> " + netfile);
-                log.info("配置接口ip地址成功!");
+                log.debug("配置接口ip地址成功!");
             } else {
                 log.error("不存在该网络接口配置文件:" + netfile);
             }
-
-            System.out.println(jSchUtil.getStandardOutput());
         } catch (Exception e) {
             e.printStackTrace();
         }
