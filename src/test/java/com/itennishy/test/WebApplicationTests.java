@@ -1,5 +1,6 @@
 package com.itennishy.test;
 
+import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.runMainLops;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,5 +59,11 @@ public class WebApplicationTests {
 //        System.out.println("结束");
     }
 
+    @Test
+    public void testRaid(){
+//        JSchExecutor jSchUtil = new JSchExecutor();
+//        jSchUtil = new JSchExecutor("root", "1234", "192.168.0.160");
+//        jSchUtil.execCmd("/opt/MegaRAID/MegaCli/MegaCli64 -PDList -aALL | grep Adapter | awk -F '#' '{print $2}'")
+    }
 
 }
