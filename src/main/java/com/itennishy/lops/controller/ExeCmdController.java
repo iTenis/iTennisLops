@@ -50,12 +50,13 @@ public class ExeCmdController {
 
     /**
      * http://127.0.0.1:8081/exec/config?conf=hosts.conf&cmd=free -m
+     *
      * @param conf
      * @param cmd
      * @return
      */
     @RequestMapping("/config")
-    public JsonData DownLoadFile(String conf, @RequestParam("cmd") String cmd) {
+    public JsonData ExeCmds(String conf, @RequestParam("cmd") String cmd) {
         Vector<String> vector = new Vector<>();
         try {
             List<String[]> contents = new FileUtils().getConfigContent(conf);
@@ -110,4 +111,31 @@ public class ExeCmdController {
         }
         return JsonData.BuildSuccess(vector);
     }
+
+    /**
+     * 配置时间时区
+     * http://127.0.0.1:8081/exec/timezone?conf=hosts.conf&date=2019-12-20 17:48:00
+     */
+    @RequestMapping("/timezone")
+    public JsonData setTimeZone(String conf, String date) {
+        JsonData jsonData;
+        if ("".equals(date)) {
+            jsonData = ExeCmds(conf, "ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;hwclock &> /dev/null;date -s \"`date '+%Y-%m-%d %H:%M:%S'`\" &> /dev/null");
+        } else {
+            jsonData = ExeCmds(conf, "ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;hwclock &> /dev/null;date -s \"" + date + "\" &> /dev/null");
+        }
+        return jsonData;
+    }
+
+    /**
+     * 清除MBR引导
+     * 解决重装操作系统时进入旧系统问题,重启后操作系统将无法进入原系统
+     * http://127.0.0.1:8081/mbr/clean/all?conf=hosts.conf
+     */
+    @RequestMapping("/mbr/clean/all")
+    public JsonData ClearMBR(String conf) {
+        JsonData jsonData = ExeCmds(conf, "dd if=/dev/zero of=/dev/sda bs=1k count=1 && echo 'Clear MBR OK' || echo 'Clear MBR failed'");
+        return jsonData;
+    }
+
 }
