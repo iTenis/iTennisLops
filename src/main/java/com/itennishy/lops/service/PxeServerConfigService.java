@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -31,7 +32,8 @@ public class PxeServerConfigService {
 
     private ConcurrentLinkedQueue<String> linkedQueue = new ConcurrentLinkedQueue<>();
 
-    public void ConfigPxeServer(JSchExecutor jSchUtil) throws Exception {
+    public int ConfigPxeServer(JSchExecutor jSchUtil) throws Exception {
+        AtomicInteger isSuccess = new AtomicInteger();
         AtomicBoolean flag = new AtomicBoolean(true);
         new Thread(() -> {
             try {
@@ -96,12 +98,11 @@ public class PxeServerConfigService {
                 jSchUtil.execCmd("mkdir -p /var/lib/tftpboot/images/" + osversionPath);
 
 
-
                 linkedQueue.add("分发系统引导文件");
 
-                jSchUtil.upLoadFile(currentPath + "/boot/pxelinux", "/var/lib/tftpboot",0);
-                jSchUtil.upLoadFile(currentPath + "/boot/uefi", "/var/lib/tftpboot",0);
-                jSchUtil.upLoadFile(currentPath + "/boot/efi", "/var/lib/tftpboot",0);
+                jSchUtil.upLoadFile(currentPath + "/boot/pxelinux", "/var/lib/tftpboot", 0);
+                jSchUtil.upLoadFile(currentPath + "/boot/uefi", "/var/lib/tftpboot", 0);
+                jSchUtil.upLoadFile(currentPath + "/boot/efi", "/var/lib/tftpboot", 0);
 
                 linkedQueue.add("配置默认引导MENU");
                 jSchUtil.execCmd("(\n" +
@@ -254,10 +255,11 @@ public class PxeServerConfigService {
                 jSchUtil.execCmd("service xinetd restart");
                 jSchUtil.execCmd("chkconfig httpd on");
                 jSchUtil.execCmd("service httpd restart");
-                jSchUtil.execCmd("service network restart &> /dev/null &");
+//                jSchUtil.execCmd("service network restart &> /dev/null &");
                 linkedQueue.add("pxe服务器配置完成");
 
             } catch (Exception e) {
+                isSuccess.set(0 - isSuccess.get());
                 log.error("PXE服务配置失败:", e);
             } finally {
                 flag.set(false);
@@ -268,8 +270,10 @@ public class PxeServerConfigService {
             String txt = linkedQueue.poll();
             if (txt != null) {
                 log.info("STEP" + next + ":" + txt);
+                isSuccess.set(next);
                 next++;
             }
         }
+        return isSuccess.get();
     }
 }

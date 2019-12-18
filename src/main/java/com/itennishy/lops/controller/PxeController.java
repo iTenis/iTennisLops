@@ -24,8 +24,12 @@ public class PxeController {
         try {
             jSchUtil = new JSchExecutor(iTennisConfig.getPxeServer().get("user"), iTennisConfig.getPxeServer().get("password"), "127.0.0.1");
             jSchUtil.connect();
-            pxeServerConfigService.ConfigPxeServer(jSchUtil);
-            return JsonData.BuildSuccess("PXE服务器配置成功");
+            int status = pxeServerConfigService.ConfigPxeServer(jSchUtil);
+            if (status < 0) {
+                return JsonData.BuildError(50002, status, "pxe服务配置失败");
+            } else {
+                return JsonData.BuildSuccess("PXE服务配置请求成功");
+            }
         } catch (Exception e) {
             return JsonData.BuildError(50001, e.getMessage());
         } finally {
@@ -39,8 +43,12 @@ public class PxeController {
         try {
             jSchUtil = new JSchExecutor(user, pwd, ip);
             jSchUtil.connect();
-            pxeServerConfigService.ConfigPxeServer(jSchUtil);
-            return JsonData.BuildSuccess("PXE服务器配置成功");
+            int status = pxeServerConfigService.ConfigPxeServer(jSchUtil);
+            if (status < 0) {
+                return JsonData.BuildError(50002, status, "pxe服务配置失败");
+            } else {
+                return JsonData.BuildSuccess("PXE服务配置请求成功");
+            }
         } catch (Exception e) {
             return JsonData.BuildError(50001, e.getMessage());
         } finally {

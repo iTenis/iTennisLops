@@ -239,7 +239,6 @@ public class JSchExecutor {
                 }
                 pwd = pwd + "/" + file.getName();
                 try {
-
                     sftp.cd(file.getName());
                 } catch (SftpException e) {
                     e.printStackTrace();
@@ -411,14 +410,10 @@ public class JSchExecutor {
     }
 
 
-    public boolean isLinkExist(String link) {
+    public boolean isLinkExist(String link) throws SftpException {
         boolean isLinkExistFlag = false;
-        try {
-            sftp.lstat(link);
-            isLinkExistFlag = true;
-        } catch (Exception e) {
-            log.error("Exception Happens:", e);
-        }
+        sftp.lstat(link);
+        isLinkExistFlag = true;
         return isLinkExistFlag;
     }
 
