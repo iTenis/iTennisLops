@@ -1,6 +1,7 @@
 logs
 *.log
 /target/
+/jobs/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
