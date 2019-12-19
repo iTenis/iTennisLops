@@ -5,7 +5,6 @@ import org.springframework.boot.system.ApplicationHome;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -64,10 +63,20 @@ public class FileUtils {
         return contents;
     }
 
-    public static void main(String[] args) throws Exception {
-        List<String[]> contents = new FileUtils().getConfigContent("raid.conf");
-        for (String[] content : contents) {
-            System.out.println(Arrays.toString(content));
+    public int getFlag(String conf, String[] content) {
+        int t = 0;
+        if ("hosts.conf".equals(conf)) {
+            if (content.length == 3) {
+                t = 1;
+            } else if (content.length == 4) {
+                t = 0;
+            } else {
+                log.error("配置文件内容有问题");
+            }
+        } else {
+            t = 1;
         }
+        return t;
     }
+
 }

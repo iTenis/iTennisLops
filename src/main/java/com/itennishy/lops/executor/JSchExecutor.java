@@ -114,7 +114,6 @@ public class JSchExecutor {
         }
 
         reader.close();
-        // Get the return code only after the channel is closed.
         if (channel.isClosed()) {
             returnCode = channel.getExitStatus();
         }
@@ -144,7 +143,7 @@ public class JSchExecutor {
             while (in.available() > 0) {
                 int i = in.read(tmp, 0, 1024);
                 if (i < 0) break;
-                log.info(new String(tmp, 0, i));
+                System.out.print(new String(tmp, 0, i));
             }
             if (channel.isClosed()) {
                 if (in.available() > 0) continue;
@@ -153,7 +152,7 @@ public class JSchExecutor {
                 break;
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (Exception ee) {
             }
         }

@@ -1,6 +1,7 @@
 package com.itennishy.lops.utils;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -37,8 +38,15 @@ public class DeviceDiscoveryUtils {
         return iplists;
     }
 
-    public static void main(String[] args) {
-        new DeviceDiscoveryUtils().getOnlineDevices("192.168.0.100", "192.168.0.200");
+    public boolean getOnlineDevice(String ip) throws Exception {
+        InetAddress addip = InetAddress.getByName(ip);
+        boolean status = addip.isReachable(100);
+        System.out.println("IP地址为:" + ip + "\t\t设备名称为: " + addip.getHostName() + "\t\t是否可用: " + (status ? "可用" : "不可用"));
+        return status;
+    }
+
+    public static void main(String[] args) throws Exception {
+        new DeviceDiscoveryUtils().getOnlineDevice("192.168.0.100");
     }
 }
 

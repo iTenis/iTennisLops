@@ -40,7 +40,7 @@ public class UpDownFileController {
      * @return
      */
     @RequestMapping("/define")
-    public JsonData UpLoadFile(String ip, String user, String pwd, @RequestParam("remote") String remote, @RequestParam("local") String local, String mode) {
+    public JsonData upDownLoadFile(String ip, String user, String pwd, @RequestParam("remote") String remote, @RequestParam("local") String local, String mode) {
         if ("upload".equals(mode) || "download".equals(mode)) {
             log.info("您选择的文件模式为:" + mode);
         } else {
@@ -78,7 +78,7 @@ public class UpDownFileController {
      * @return
      */
     @RequestMapping("/config")
-    public JsonData DownLoadFile(@RequestParam("remote") String remote, @RequestParam("local") String local, String conf, String mode) {
+    public JsonData upDownLoadFile(@RequestParam("remote") String remote, @RequestParam("local") String local, String conf, String mode) {
         Vector<String> vector = new Vector<>();
         try {
             if ("upload".equals(mode) || "download".equals(mode)) {
@@ -90,13 +90,7 @@ public class UpDownFileController {
             AtomicInteger t = new AtomicInteger();
             List<FutureTask<String>> futureTasks = new ArrayList<>();
             for (String[] content : contents) {
-                if (content.length == 3) {
-                    t.set(1);
-                } else if (content.length == 4) {
-                    t.set(0);
-                } else {
-                    log.error("配置文件内容有问题");
-                }
+                t.set(new FileUtils().getFlag(conf, content));
 
                 futureTasks.add(new FutureTask<>(new Callable<String>() {
                     @Override
@@ -123,7 +117,9 @@ public class UpDownFileController {
                     }
                 }));
             }
-
+            if (contents.size() == 0) {
+                return JsonData.BuildSuccess("配置文件没有内容，请核实查看");
+            }
             ExecutorService executorService = Executors.newFixedThreadPool(contents.size());
             for (FutureTask<String> futureTask : futureTasks) {
                 executorService.submit(futureTask);

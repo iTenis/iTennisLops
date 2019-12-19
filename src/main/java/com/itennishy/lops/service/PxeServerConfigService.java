@@ -52,7 +52,7 @@ public class PxeServerConfigService {
                 String serveros = iTennisConfig.getInstallOS().get("os");
                 String serverversion = iTennisConfig.getInstallOS().get("version");
 
-                String currentPath = new FileUtils().getJarPath();
+                String currentPath = new FileUtils().getPath();
 
                 linkedQueue.add("配置TFTP服务");
                 jSchUtil.execCmd("sed -i '/disable/s/yes/no/' /etc/xinetd.d/tftp");
@@ -100,9 +100,9 @@ public class PxeServerConfigService {
 
                 linkedQueue.add("分发系统引导文件");
 
-                jSchUtil.upLoadFile(currentPath + "/boot/pxelinux", "/var/lib/tftpboot", 0);
-                jSchUtil.upLoadFile(currentPath + "/boot/uefi", "/var/lib/tftpboot", 0);
-                jSchUtil.upLoadFile(currentPath + "/boot/efi", "/var/lib/tftpboot", 0);
+                jSchUtil.upLoadFile(currentPath + "boot/pxelinux", "/var/lib/tftpboot", 0);
+                jSchUtil.upLoadFile(currentPath + "boot/uefi", "/var/lib/tftpboot", 0);
+                jSchUtil.upLoadFile(currentPath + "boot/efi", "/var/lib/tftpboot", 0);
 
                 linkedQueue.add("配置默认引导MENU");
                 jSchUtil.execCmd("(\n" +

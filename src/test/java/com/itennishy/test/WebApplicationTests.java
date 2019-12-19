@@ -59,11 +59,20 @@ public class WebApplicationTests {
 //        System.out.println("结束");
     }
 
-    @Test
-    public void testRaid(){
-//        JSchExecutor jSchUtil = new JSchExecutor();
-//        jSchUtil = new JSchExecutor("root", "1234", "192.168.0.160");
-//        jSchUtil.execCmd("/opt/MegaRAID/MegaCli/MegaCli64 -PDList -aALL | grep Adapter | awk -F '#' '{print $2}'")
-    }
+//    @Test
+//    public void testRaid() throws Exception {
+//        JSchExecutor jSchUtil = new JSchExecutor("root", "123456", "192.168.0.102");
+//        jSchUtil.connect();
+////        jSchUtil.execCmd("ls /");
+//        new Thread(()->{
+//            try {
+//                System.out.println(jSchUtil.shellCmd("top"));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }).start();
+//
+//
+//    }
 
 }

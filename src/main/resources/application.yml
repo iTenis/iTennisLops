@@ -63,10 +63,6 @@ management:
 # 用来配置日志级别
 logging:
   level:
-    com.itennishy.lops.executor.JSchExecutor: warn
+    com.itennishy.lops.executor.JSchExecutor: info
     com.itennishy.lops: info
-  file:
-    path: logs/
-    name: itennis.log
-    max-size: 1GB
-    max-history: 7
+  file: logs/itennis.log
