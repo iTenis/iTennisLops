@@ -1,5 +1,6 @@
 package com.itennishy.lops.controller;
 
+import com.itennishy.lops.service.NetworkConfigService;
 import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.service.ExeCmdService;
@@ -20,6 +21,9 @@ public class ExeCmdController {
 
     @Autowired
     private ExeCmdService exeCmdService;
+
+    @Autowired
+    private NetworkConfigService networkConfigService;
 
     /**
      * 远程执行命令
@@ -140,5 +144,9 @@ public class ExeCmdController {
         jSchUtil.disconnect();
     }
 
+    @RequestMapping("changeip")
+    public JsonData changeIp(String conf){
+        return networkConfigService.ChangeIp(conf);
+    }
 
 }

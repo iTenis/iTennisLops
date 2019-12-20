@@ -255,7 +255,7 @@ public class PxeServerConfigService {
                 jSchUtil.execCmd("service xinetd restart");
                 jSchUtil.execCmd("chkconfig httpd on");
                 jSchUtil.execCmd("service httpd restart");
-//                jSchUtil.execCmd("service network restart &> /dev/null &");
+                jSchUtil.execCmd("service network restart &> /dev/null &");
                 linkedQueue.add("pxe服务器配置完成");
 
             } catch (Exception e) {
