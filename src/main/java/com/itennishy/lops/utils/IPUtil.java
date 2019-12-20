@@ -40,8 +40,8 @@ public class IPUtil {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        System.out.println(ipToLong("219.239.110.138"));
-        System.out.println(longToIP(3689901706L));
-    }
+//    public static void main(String[] args) {
+//        System.out.println(ipToLong("219.239.110.138"));
+//        System.out.println(longToIP(3689901706L));
+//    }
 }

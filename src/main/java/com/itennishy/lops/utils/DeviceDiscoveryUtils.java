@@ -1,12 +1,14 @@
 package com.itennishy.lops.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 public class DeviceDiscoveryUtils {
 
     List<String> iplists = new ArrayList<>();
@@ -18,7 +20,7 @@ public class DeviceDiscoveryUtils {
                 String ip = IPUtil.longToIP(i);
                 InetAddress addip = InetAddress.getByName(ip);
                 boolean status = addip.isReachable(100);
-                System.out.println("IP地址为:" + ip + "\t\t设备名称为: " + addip.getHostName() + "\t\t是否可用: " + (status ? "可用" : "不可用"));
+                System.out.println("IP地址为:" + ip + "\t设备名称为: " + addip.getHostName() + "\t是否可用: " + (status ? "可用" : "不可用"));
                 if (status) {
                     iplists.add(ip);
                 }
@@ -41,13 +43,13 @@ public class DeviceDiscoveryUtils {
     public boolean getOnlineDevice(String ip) throws Exception {
         InetAddress addip = InetAddress.getByName(ip);
         boolean status = addip.isReachable(100);
-        System.out.println("IP地址为:" + ip + "\t\t设备名称为: " + addip.getHostName() + "\t\t是否可用: " + (status ? "可用" : "不可用"));
+        log.info("IP地址为:" + ip + "\t设备名称为: " + addip.getHostName() + "\t是否可用: " + (status ? "可用" : "不可用"));
         return status;
     }
 
-    public static void main(String[] args) throws Exception {
-        new DeviceDiscoveryUtils().getOnlineDevice("192.168.0.100");
-    }
+//    public static void main(String[] args) throws Exception {
+//        new DeviceDiscoveryUtils().getOnlineDevice("192.168.0.100");
+//    }
 }
 
 
