@@ -1,5 +1,6 @@
 package com.itennishy.lops.controller;
 
+import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.utils.DeviceDiscoveryUtils;
 import com.itennishy.lops.utils.FileUtils;
@@ -8,14 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @RestController
@@ -88,7 +86,7 @@ public class IPMIController {
             }
 
             if (contents.size() == 0) {
-                return JsonData.BuildSuccess("配置文件没有内容，请核实查看");
+                return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
             }
             ExecutorService executorService = Executors.newFixedThreadPool(contents.size());
             for (FutureTask<Map<String, String>> futureTask : futureTasks) {
@@ -105,9 +103,9 @@ public class IPMIController {
             }
 
         } catch (Exception e) {
-            return JsonData.BuildError(5001, e.getMessage());
+            return JsonData.BuildRequest(e.getMessage(),StatusCode.STATUS_ERROR);
         }
-        return JsonData.BuildSuccess(vector);
+        return JsonData.BuildRequest(vector,StatusCode.STATUS_OK);
     }
 
 }

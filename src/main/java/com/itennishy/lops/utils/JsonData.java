@@ -19,27 +19,37 @@ public class JsonData implements Serializable {
     @Singular
     private String msg;
 
-    public static JsonData BuildSuccess(){
-        return new JsonData(200,null,null);
+    public static JsonData BuildSuccess() {
+        return new JsonData(200, null, null);
     }
 
-    public static JsonData BuildSuccess(Object data){
-        return new JsonData(200,data,null);
+//    public static JsonData BuildSuccess(Object data) {
+//        return new JsonData(200, data, null);
+//    }
+
+    public static JsonData BuildSuccess(Integer code, Object data, String msg) {
+        return new JsonData(code, data, msg);
     }
 
-    public static JsonData BuildSuccess(Integer code, Object data, String msg){
-        return new JsonData(code,data,msg);
+    public static JsonData BuildRequest(Object data, StatusCode statusCode) {
+        return new JsonData(statusCode.getCode(), data, statusCode.getMessage());
     }
 
-    public static JsonData BuildError(){
-        return new JsonData(400,null,null);
-    }
-    public static JsonData BuildError(Integer code, String msg){
-        return new JsonData(code,null,msg);
+    public static JsonData BuildRequest(StatusCode statusCode) {
+        return new JsonData(statusCode.getCode(), null, statusCode.getMessage());
     }
 
-    public static JsonData BuildError(Integer code, Object data, String msg){
-        return new JsonData(code,data,msg);
+
+    public static JsonData BuildError() {
+        return new JsonData(400, null, null);
     }
+
+//    public static JsonData BuildError(Integer code, String msg) {
+//        return new JsonData(code, null, msg);
+//    }
+//
+//    public static JsonData BuildError(Integer code, Object data, String msg) {
+//        return new JsonData(code, data, msg);
+//    }
 
 }

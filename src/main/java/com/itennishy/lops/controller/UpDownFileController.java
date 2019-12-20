@@ -1,5 +1,6 @@
 package com.itennishy.lops.controller;
 
+import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.service.UpDownFileService;
 import com.itennishy.lops.utils.FileUtils;
@@ -44,7 +45,7 @@ public class UpDownFileController {
         if ("upload".equals(mode) || "download".equals(mode)) {
             log.info("您选择的文件模式为:" + mode);
         } else {
-            return JsonData.BuildError(50003, "mode错误");
+            return JsonData.BuildRequest(StatusCode.STATUS_PARAMS_ERROR);
         }
         JSchExecutor jSchUtil = new JSchExecutor();
         try {
@@ -57,9 +58,9 @@ public class UpDownFileController {
             } else {
                 log.error("选择的模式有问题");
             }
-            return JsonData.BuildSuccess("发送请求成功");
+            return JsonData.BuildRequest(StatusCode.STATUS_OK);
         } catch (Exception e) {
-            return JsonData.BuildError(50001, e.getMessage());
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
         } finally {
             jSchUtil.disconnect();
         }
@@ -84,7 +85,7 @@ public class UpDownFileController {
             if ("upload".equals(mode) || "download".equals(mode)) {
                 log.info("您选择的文件模式为:" + mode);
             } else {
-                return JsonData.BuildError(50003, "mode错误");
+                return JsonData.BuildRequest(StatusCode.STATUS_PARAMS_ERROR);
             }
             List<String[]> contents = new FileUtils().getConfigContent(conf);
             AtomicInteger t = new AtomicInteger();
@@ -118,7 +119,7 @@ public class UpDownFileController {
                 }));
             }
             if (contents.size() == 0) {
-                return JsonData.BuildSuccess("配置文件没有内容，请核实查看");
+                return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
             }
             ExecutorService executorService = Executors.newFixedThreadPool(contents.size());
             for (FutureTask<String> futureTask : futureTasks) {
@@ -136,8 +137,8 @@ public class UpDownFileController {
             }
 
         } catch (Exception e) {
-            return JsonData.BuildError(50001, e.getMessage());
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
         }
-        return JsonData.BuildSuccess(vector);
+        return JsonData.BuildRequest(vector, StatusCode.STATUS_OK);
     }
 }

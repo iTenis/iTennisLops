@@ -1,6 +1,7 @@
 package com.itennishy.lops.controller;
 
 import com.itennishy.lops.domain.iTennisConfig;
+import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.service.PxeServerConfigService;
 import com.itennishy.lops.utils.JsonData;
@@ -26,12 +27,12 @@ public class PxeController {
             jSchUtil.connect();
             int status = pxeServerConfigService.ConfigPxeServer(jSchUtil);
             if (status < 0) {
-                return JsonData.BuildError(50002, status, "pxe服务配置失败");
+                return JsonData.BuildRequest(status, StatusCode.STATUS_ERROR);
             } else {
-                return JsonData.BuildSuccess("PXE服务配置请求成功");
+                return JsonData.BuildRequest(StatusCode.STATUS_OK);
             }
         } catch (Exception e) {
-            return JsonData.BuildError(50001, e.getMessage());
+            return JsonData.BuildRequest(e.getMessage(),StatusCode.STATUS_ERROR);
         } finally {
             jSchUtil.disconnect();
         }
@@ -45,12 +46,12 @@ public class PxeController {
             jSchUtil.connect();
             int status = pxeServerConfigService.ConfigPxeServer(jSchUtil);
             if (status < 0) {
-                return JsonData.BuildError(50002, status, "pxe服务配置失败");
+                return JsonData.BuildRequest(status, StatusCode.STATUS_ERROR);
             } else {
-                return JsonData.BuildSuccess("PXE服务配置请求成功");
+                return JsonData.BuildRequest(StatusCode.STATUS_OK);
             }
         } catch (Exception e) {
-            return JsonData.BuildError(50001, e.getMessage());
+            return JsonData.BuildRequest(e.getMessage(),StatusCode.STATUS_ERROR);
         } finally {
             jSchUtil.disconnect();
         }

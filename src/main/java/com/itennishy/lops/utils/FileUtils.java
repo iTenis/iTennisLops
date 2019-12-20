@@ -53,7 +53,7 @@ public class FileUtils {
             String line = "";
             while ((line = reader.readLine()) != null) {
                 if (!line.startsWith("#")) {
-                    contents.add(line.split("\t| "));
+                    contents.add(line.split("\\t+|\\s+"));
                 }
             }
             return contents;
