@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,9 +21,6 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("/exec")
 public class ExeCmdController {
-
-    @Autowired
-    private UpDownFileService upDownFileService;
 
     /**
      * 远程执行命令
@@ -59,106 +55,55 @@ public class ExeCmdController {
      * @return
      */
     @RequestMapping("/config")
-    public JsonData ExeCmds(String conf, @RequestParam("cmd") String cmd) {
-        Vector<Map<String, String>> vector = new Vector<>();
+    public JsonData ExeCmds(String conf, @RequestParam("cmds") Object cmds) {
+        Vector<Map<String, Object>> vector = new Vector<>();
         try {
             List<String[]> contents = new FileUtils().getConfigContent(conf);
             AtomicInteger t = new AtomicInteger();
-            List<FutureTask<Map<String, String>>> futureTasks = new ArrayList<>();
+            List<FutureTask<Map<String, Object>>> futureTasks = new ArrayList<>();
             for (String[] content : contents) {
                 t.set(new FileUtils().getFlag(conf,content));
 
-                futureTasks.add(new FutureTask<>(new Callable<Map<String, String>>() {
+                futureTasks.add(new FutureTask<>(new Callable<Map<String, Object>>() {
                     @Override
-                    public Map<String, String> call() throws Exception {
-                        Map<String, String> result = new HashMap<>();
+                    public Map<String, Object> call() throws Exception {
+                        Map<String, Object> result = new HashMap<>();
                         JSchExecutor jSchUtil = new JSchExecutor();
                         try {
                             if (new DeviceDiscoveryUtils().getOnlineDevice(content[0]) && new DeviceDiscoveryUtils().getOnlineDevice(content[1 - t.get()])) {
                                 jSchUtil = new JSchExecutor(content[2 - t.get()], content[3 - t.get()], content[0]);
                                 jSchUtil.connect();
-                                jSchUtil.execCmd(cmd);
-                                result.put(content[0], jSchUtil.getStandardOutput().toString());
-                            } else {
-                                result.put(content[0], null);
-                            }
+                                if(LinkedList.class.isInstance(cmds)){
+                                    LinkedList<String> linkedList = new LinkedList<>();
+                                    String next = "";
+                                    for (String cmd : (LinkedList<String>)cmds) {
+                                        jSchUtil.execCmd(cmd);
+                                        String tstring = jSchUtil.getStandardOutput().toString();
+                                        Matcher matcher = Pattern.compile("^\\[(.*?)]$").matcher(tstring);
+                                        while (matcher.find()) {
+                                            tstring = matcher.group(1);
+                                        }
+                                        if ("".equals(next)) {
+                                            linkedList.add(tstring.trim());
+                                        } else {
+                                            String x = tstring.substring(next.length());
+                                            if (x.startsWith(","))
+                                                x = x.substring(1);
+                                            if (x.endsWith(","))
+                                                x = x.substring(0, x.length() - 1);
+                                            linkedList.add(x.trim());
 
-                        } catch (Exception e) {
-                            log.error("执行命令出现异常:", e);
-                            result.put(content[0], null);
-                        } finally {
-                            jSchUtil.disconnect();
-                        }
-                        return result;
-                    }
-                }));
-            }
-            if(contents.size()==0){
-                return JsonData.BuildSuccess("配置文件没有内容，请核实查看");
-            }
-            ExecutorService executorService = Executors.newFixedThreadPool(contents.size());
-            for (FutureTask<Map<String, String>> futureTask : futureTasks) {
-                executorService.submit(futureTask);
-            }
-            executorService.shutdown();
-            for (int i = 0; i < contents.size(); i++) {
-                try {
-                    Map<String, String> flag = futureTasks.get(i).get();
-                    vector.add(flag);
-                    System.out.println(flag);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-        } catch (Exception e) {
-            return JsonData.BuildError(50001, e.getMessage());
-        }
-        return JsonData.BuildSuccess(vector);
-    }
-
-    @RequestMapping("/config2")
-    public JsonData ExeCmds(String conf, @RequestParam("cmds") LinkedList<String> cmds) {
-        Vector<Map<String, LinkedList>> vector = new Vector<>();
-        try {
-            List<String[]> contents = new FileUtils().getConfigContent(conf);
-            AtomicInteger t = new AtomicInteger();
-            List<FutureTask<Map<String, LinkedList>>> futureTasks = new ArrayList<>();
-            for (String[] content : contents) {
-                t.set(new FileUtils().getFlag(conf,content));
-
-                futureTasks.add(new FutureTask<>(new Callable<Map<String, LinkedList>>() {
-                    @Override
-                    public Map<String, LinkedList> call() throws Exception {
-                        Map<String, LinkedList> result = new HashMap<>();
-                        JSchExecutor jSchUtil = new JSchExecutor();
-                        try {
-                            if (new DeviceDiscoveryUtils().getOnlineDevice(content[0]) && new DeviceDiscoveryUtils().getOnlineDevice(content[1 - t.get()])) {
-                                jSchUtil = new JSchExecutor(content[2 - t.get()], content[3 - t.get()], content[0]);
-                                jSchUtil.connect();
-                                LinkedList<String> linkedList = new LinkedList<>();
-                                String next = "";
-                                for (String cmd : cmds) {
-                                    jSchUtil.execCmd(cmd);
-                                    String tstring = jSchUtil.getStandardOutput().toString();
-                                    Matcher matcher = Pattern.compile("^\\[(.*?)]$").matcher(tstring);
-                                    while (matcher.find()) {
-                                        tstring = matcher.group(1);
+                                        }
+                                        next = tstring;
                                     }
-                                    if ("".equals(next)) {
-                                        linkedList.add(tstring.trim());
-                                    } else {
-                                        String x = tstring.substring(next.length());
-                                        if (x.startsWith(","))
-                                            x = x.substring(1);
-                                        if (x.endsWith(","))
-                                            x = x.substring(0, x.length() - 1);
-                                        linkedList.add(x.trim());
-
-                                    }
-                                    next = tstring;
+                                    result.put(content[0], linkedList);
                                 }
-                                result.put(content[0], linkedList);
+
+                                if(String.class.isInstance(cmds)) {
+                                    jSchUtil.execCmd((String) cmds);
+                                    result.put(content[0], jSchUtil.getStandardOutput().toString());
+                                }
+
                             } else {
                                 result.put(content[0], null);
                             }
@@ -176,13 +121,13 @@ public class ExeCmdController {
                 return JsonData.BuildSuccess("配置文件没有内容，请核实查看");
             }
             ExecutorService executorService = Executors.newFixedThreadPool(contents.size());
-            for (FutureTask<Map<String, LinkedList>> futureTask : futureTasks) {
+            for (FutureTask<Map<String, Object>> futureTask : futureTasks) {
                 executorService.submit(futureTask);
             }
             executorService.shutdown();
             for (int i = 0; i < contents.size(); i++) {
                 try {
-                    Map<String, LinkedList> flag = futureTasks.get(i).get();
+                    Map<String, Object> flag = futureTasks.get(i).get();
                     vector.add(flag);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -209,6 +154,13 @@ public class ExeCmdController {
         }
         return jsonData;
     }
+
+    @RequestMapping("/pwd")
+    public JsonData setRootPwd(String conf) {
+        JsonData jsonData = ExeCmds(conf, "echo $newpwd | passwd --stdin root");
+        return jsonData;
+    }
+
 
     /**
      * 清除MBR引导
@@ -258,43 +210,6 @@ public class ExeCmdController {
         return JsonData.BuildSuccess(resultMap);
     }
 
-    @Autowired
-    private UpDownFileController upDownFileController;
-
-
-    @RequestMapping("/raid")
-    public JsonData setRaid() throws Exception {
-        String path = new FileUtils().getPath();
-        upDownFileController.upDownLoadFile("/tmp/itennis_tmp",path + "boot" + File.separator + "tools" + File.separator + "megacli","raid.conf","upload");
-        LinkedList<String> linkedList = new LinkedList<>();
-        linkedList.add("rpm -ivh /tmp/itennis_tmp/megacli/Lib_Utils-1.00-09.noarch.rpm");
-        linkedList.add("rpm -ivh /tmp/itennis_tmp/megacli/MegaCli-8.07.10-1.noarch.rpm");
-        linkedList.add("/opt/MegaRAID/MegaCli/MegaCli64 -PDList -aALL | grep Adapter | awk -F '#' '{print $2}'");
-        linkedList.add("/opt/MegaRAID/MegaCli/MegaCli64 -PDList -aAll| grep -Ei \"(Enclosure Device|Slot Number)\"|awk -F ':' '{print $2}'");
-        JsonData jsonData = ExeCmds("raid.conf", linkedList);
-        for (Object o : Arrays.asList(jsonData.getData())) {
-            Vector<Map<String, LinkedList>> t = (Vector<Map<String, LinkedList>>) o;
-            for (Map<String, LinkedList> stringStringMap : t) {
-                stringStringMap.forEach((key, value) -> {
-                    if (value != null) {
-                        String adapter = (String) value.get(2);
-                        String[] arraid = (String[]) value.get(3);
-//                        System.out.println(value.get(2));
-//                        System.out.println(value.get(3));
-
-
-
-
-                    } else {
-                        System.out.println("执行失败:" + key);
-                    }
-                });
-            }
-
-        }
-        return jsonData;
-    }
-
     @RequestMapping("/testTOP")
     public void test() throws Exception {
         JSchExecutor jSchUtil = new JSchExecutor("root", "123456", "192.168.0.102");
@@ -309,18 +224,4 @@ public class ExeCmdController {
         jSchUtil.disconnect();
     }
 
-
-    @RequestMapping("/testraid")
-    public void test1() throws Exception {
-        JSchExecutor jSchUtil = new JSchExecutor("root", "123456", "192.168.0.102");
-        jSchUtil.connect();
-        int i = 0;
-        while (i < 10) {
-            jSchUtil.execCmd("top -b -c -n 1 | head -n 20");
-            System.out.println(jSchUtil.getStandardOutput());
-            i++;
-            TimeUnit.SECONDS.sleep(1);
-        }
-        jSchUtil.disconnect();
-    }
 }

@@ -116,5 +116,4 @@ public class RaidController {
 
         return JsonData.BuildSuccess(vector);
     }
-
 }
