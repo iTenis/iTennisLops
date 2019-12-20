@@ -5,9 +5,14 @@ import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.service.UpDownFileService;
 import com.itennishy.lops.utils.FileUtils;
 import com.itennishy.lops.utils.JsonData;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +26,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
+@Api(value = "文件上传下载类",tags = "文件操作类")
 @RestController
 @RequestMapping("/updown")
 public class UpDownFileController {
@@ -40,7 +46,15 @@ public class UpDownFileController {
      * @param local
      * @return
      */
-    @RequestMapping("/define")
+    @ApiOperation(value = "文件上传下载", notes = "根据指定地址上传下载")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", required = true),
+            @ApiImplicitParam(name = "user", value = "用户名", dataType = "String", required = true),
+            @ApiImplicitParam(name = "pwd", value = "密码", dataType = "String", required = true),
+            @ApiImplicitParam(name = "remote", value = "远程路径", dataType = "String", required = true),
+            @ApiImplicitParam(name = "local", value = "本地路径", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/define", method = RequestMethod.GET)
     public JsonData upDownLoadFile(String ip, String user, String pwd, @RequestParam("remote") String remote, @RequestParam("local") String local, String mode) {
         if ("upload".equals(mode) || "download".equals(mode)) {
             log.info("您选择的文件模式为:" + mode);
@@ -78,7 +92,14 @@ public class UpDownFileController {
      * @param mode   upload或者download
      * @return
      */
-    @RequestMapping("/config")
+    @ApiOperation(value = "配置RAID", notes = "根据配置文件批量配置RAID")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "remote", value = "远程路径", dataType = "String", required = true),
+            @ApiImplicitParam(name = "local", value = "本地路径", dataType = "String", required = true),
+            @ApiImplicitParam(name = "conf", value = "配置文件名", dataType = "String", required = true),
+            @ApiImplicitParam(name = "mode", value = "上传或者下载", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/config", method = RequestMethod.GET)
     public JsonData upDownLoadFile(@RequestParam("remote") String remote, @RequestParam("local") String local, String conf, String mode) {
         Vector<String> vector = new Vector<>();
         try {

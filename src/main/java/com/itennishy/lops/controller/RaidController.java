@@ -5,8 +5,13 @@ import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.utils.DeviceDiscoveryUtils;
 import com.itennishy.lops.utils.FileUtils;
 import com.itennishy.lops.utils.JsonData;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
@@ -19,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
+@Api(value = "RAID配置类",tags = "RAID配置类")
 @RestController
 @RequestMapping("/raid")
 public class RaidController {
@@ -29,7 +35,11 @@ public class RaidController {
      * @param conf
      * @return
      */
-    @RequestMapping("/config")
+    @ApiOperation(value = "配置RAID", notes = "根据配置文件批量配置RAID")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "conf", value = "配置文件名", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/config", method = RequestMethod.GET)
     public JsonData setRaid(String conf) {
         Vector<Map<String, String>> vector = new Vector<>();
         try {
@@ -115,6 +125,6 @@ public class RaidController {
         }
 
 
-        return JsonData.BuildRequest(vector,StatusCode.STATUS_OK);
+        return JsonData.BuildRequest(vector, StatusCode.STATUS_OK);
     }
 }

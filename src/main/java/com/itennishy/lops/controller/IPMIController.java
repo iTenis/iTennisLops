@@ -5,8 +5,13 @@ import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.utils.DeviceDiscoveryUtils;
 import com.itennishy.lops.utils.FileUtils;
 import com.itennishy.lops.utils.JsonData;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
@@ -16,17 +21,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 @Slf4j
+@Api(value = "IPMI接口类，修改BMC",tags = "IPMI接口类")
 @RestController
 @RequestMapping("/ipmi")
 public class IPMIController {
 
-    /**
-     * 批量做Raid
-     *
-     * @param conf
-     * @return
-     */
-    @RequestMapping("/config")
+    @ApiOperation(value = "配置BMC地址", notes = "根据配置文件批量配置BMC地址")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "conf", value = "配置文件名", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/config", method = RequestMethod.GET)
     public JsonData setRaid(String conf) {
         Vector<Map<String, String>> vector = new Vector<>();
         try {
@@ -65,7 +69,7 @@ public class IPMIController {
 
                                 for (String cmd : cmds) {
                                     status = jSchUtil.execCmd(cmd);
-                                    if (status != 0){
+                                    if (status != 0) {
                                         log.error("执行命令出现错误");
                                     }
                                 }
@@ -103,9 +107,9 @@ public class IPMIController {
             }
 
         } catch (Exception e) {
-            return JsonData.BuildRequest(e.getMessage(),StatusCode.STATUS_ERROR);
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
         }
-        return JsonData.BuildRequest(vector,StatusCode.STATUS_OK);
+        return JsonData.BuildRequest(vector, StatusCode.STATUS_OK);
     }
 
 }

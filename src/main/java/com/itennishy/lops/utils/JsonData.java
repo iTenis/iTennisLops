@@ -23,9 +23,9 @@ public class JsonData implements Serializable {
         return new JsonData(200, null, null);
     }
 
-//    public static JsonData BuildSuccess(Object data) {
-//        return new JsonData(200, data, null);
-//    }
+    public static JsonData BuildSuccess(Object data) {
+        return new JsonData(200, data, null);
+    }
 
     public static JsonData BuildSuccess(Integer code, Object data, String msg) {
         return new JsonData(code, data, msg);
@@ -39,17 +39,21 @@ public class JsonData implements Serializable {
         return new JsonData(statusCode.getCode(), null, statusCode.getMessage());
     }
 
+    public static JsonData BuildRequest() {
+        return new JsonData(StatusCode.STATUS_OK.getCode(), null, StatusCode.STATUS_OK.getMessage());
+    }
+
 
     public static JsonData BuildError() {
         return new JsonData(400, null, null);
     }
 
-//    public static JsonData BuildError(Integer code, String msg) {
-//        return new JsonData(code, null, msg);
-//    }
-//
-//    public static JsonData BuildError(Integer code, Object data, String msg) {
-//        return new JsonData(code, data, msg);
-//    }
+    public static JsonData BuildError(Integer code, String msg) {
+        return new JsonData(code, null, msg);
+    }
+
+    public static JsonData BuildError(Integer code, Object data, String msg) {
+        return new JsonData(code, data, msg);
+    }
 
 }

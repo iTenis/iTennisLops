@@ -5,10 +5,16 @@ import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.service.PxeServerConfigService;
 import com.itennishy.lops.utils.JsonData;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+@Api(value = "PXE配置类",tags = "PXE配置类")
 @RestController
 @RequestMapping("/pxe")
 public class PxeController {
@@ -19,7 +25,8 @@ public class PxeController {
     @Autowired
     private PxeServerConfigService pxeServerConfigService;
 
-    @RequestMapping("/local")
+    @ApiOperation(value = "本地安装PXE服务", notes = "本地安装PXE服务")
+    @RequestMapping(value = "/local", method = RequestMethod.GET)
     public JsonData setPxeLocalServer() {
         JSchExecutor jSchUtil = new JSchExecutor();
         try {
@@ -32,13 +39,19 @@ public class PxeController {
                 return JsonData.BuildRequest(StatusCode.STATUS_OK);
             }
         } catch (Exception e) {
-            return JsonData.BuildRequest(e.getMessage(),StatusCode.STATUS_ERROR);
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
         } finally {
             jSchUtil.disconnect();
         }
     }
 
-    @RequestMapping("/remote")
+    @ApiOperation(value = "远程安装PXE服务", notes = "根据指定地址远程安装PXE服务")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", required = true),
+            @ApiImplicitParam(name = "user", value = "用户名", dataType = "String", required = true),
+            @ApiImplicitParam(name = "pwd", value = "密码", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/remote", method = RequestMethod.GET)
     public JsonData setPxeRemoteServer(String ip, String user, String pwd) {
         JSchExecutor jSchUtil = new JSchExecutor();
         try {
@@ -51,7 +64,7 @@ public class PxeController {
                 return JsonData.BuildRequest(StatusCode.STATUS_OK);
             }
         } catch (Exception e) {
-            return JsonData.BuildRequest(e.getMessage(),StatusCode.STATUS_ERROR);
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
         } finally {
             jSchUtil.disconnect();
         }

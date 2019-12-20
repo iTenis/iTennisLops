@@ -1,5 +1,8 @@
 package com.itennishy.lops.utils;
 
+import io.swagger.annotations.Api;
+
+@Api(value = "状态码")
 public enum StatusCode {
 
     //自定义的状态码
@@ -9,9 +12,8 @@ public enum StatusCode {
     STATUS_PARAMS_ERROR(50003,"参数配置错误，请核实查看"),
     ;
 
-    //错误码
     public Integer code;
-    //提示信息
+
     public String message;
 
     //构造函数
