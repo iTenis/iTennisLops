@@ -52,7 +52,7 @@ public class FileUtils {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
             String line = "";
             while ((line = reader.readLine()) != null) {
-                if (!line.startsWith("#")) {
+                if (!line.startsWith("#") && line.trim().length() != 0 && !line.startsWith("//")) {
                     contents.add(line.split("\\t+|\\s+"));
                 }
             }
