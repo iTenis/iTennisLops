@@ -1,6 +1,7 @@
 package com.itennishy.lops.controller;
 
 import com.itennishy.lops.service.NetworkConfigService;
+import com.itennishy.lops.utils.FileUtils;
 import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.service.ExeCmdService;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Api(value = "常用命令执行接口", tags = "常用接口类")
@@ -207,24 +210,83 @@ public class ExeCmdController {
             @ApiImplicitParam(name = "perm", value = "权限", dataType = "String", required = true),
             @ApiImplicitParam(name = "user", value = "用户", dataType = "String", required = true),
     })
-    @RequestMapping(value = "/find",method = RequestMethod.GET)
+    @RequestMapping(value = "/find", method = RequestMethod.GET)
     public JsonData FindPermOrUserFile(String conf, String dir, String perm, String user) {
         String cmd = "find " + dir;
         if (!"".equals(perm)) {
-            if(perm.startsWith("!")) {
+            if (perm.startsWith("!")) {
                 cmd = cmd + " ! -perm " + perm.substring(1);
-            }else {
+            } else {
                 cmd = cmd + " -perm " + perm;
             }
         }
         if (!"".equals(user)) {
-            if(user.startsWith("!")) {
+            if (user.startsWith("!")) {
                 cmd = cmd + " ! -user " + user.substring(1);
-            }else{
+            } else {
                 cmd = cmd + " -user " + user;
             }
         }
         return exeCmdService.ExeCmds(conf, cmd);
+    }
+
+    @ApiOperation(value = "免密配置", notes = "配置该服务器到配置文件中服务器的免密配置")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "conf", value = "配置文件名", dataType = "String", required = true),
+            @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", required = true),
+            @ApiImplicitParam(name = "user", value = "用户名", dataType = "String", required = true),
+            @ApiImplicitParam(name = "pwd", value = "密码", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/config/nopwd", method = RequestMethod.GET)
+    public JsonData SetNoPwdLogin(String conf, String ip, String user, String pwd) {
+        JSchExecutor jSchExecutor = new JSchExecutor(user, pwd, ip);
+        try {
+            jSchExecutor.connect();
+            jSchExecutor.execCmd("rm -rf ~/.ssh | ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q");
+            jSchExecutor.execCmd("cat ~/.ssh/id_rsa.pub");
+            Matcher matcher = Pattern.compile("^\\[(.*?)]$").matcher(jSchExecutor.getStandardOutput().toString());
+            String rsa = "";
+            while (matcher.find()) {
+                rsa = matcher.group(1);
+            }
+            exeCmdService.ExeCmds(conf, "echo \"" + rsa + "\" >> ~/.ssh/authorized_keys");
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_ERROR);
+        } finally {
+            jSchExecutor.disconnect();
+        }
+        return JsonData.BuildRequest();
+    }
+
+    @ApiOperation(value = "免密配置", notes = "配置文件中服务器之间免密登录")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "conf", value = "配置文件名", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/config/nopwd/all", method = RequestMethod.GET)
+    public JsonData SetNoPwdLogin(String conf) {
+        JsonData result;
+        try {
+            result = exeCmdService.ExeCmds(conf, "rm -rf ~/.ssh | ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q|echo ok");
+            JsonData jsonData = exeCmdService.ExeCmds(conf, "cat ~/.ssh/id_rsa.pub");
+            List<Map<String, String>> list = (List<Map<String, String>>) jsonData.getData();
+            StringBuilder sb = new StringBuilder();
+            for (Map<String, String> s : list) {
+                String t = (String) s.values().toArray()[0];
+                String rsa = "";
+                if (t != null && !"[]".equals(t)) {
+                    Matcher matcher = Pattern.compile("^\\[(.*?)]$").matcher(t);
+                    while (matcher.find()) {
+                        rsa = matcher.group(1);
+                    }
+                    sb.append(rsa + "\n");
+                }
+            }
+            exeCmdService.ExeCmds(conf, "echo \"" + sb.toString() + "\" >> ~/.ssh/authorized_keys");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
+        }
+        return JsonData.BuildRequest(result, StatusCode.STATUS_OK);
     }
 
     @RequestMapping(value = "/testTOP", method = RequestMethod.GET)
