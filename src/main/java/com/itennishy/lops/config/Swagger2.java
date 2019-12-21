@@ -34,6 +34,7 @@ public class Swagger2 {
                 .title("iTennis Lops Restful APIs")
                 .description("iTennis柠檬-运维管理平台")
                 .version("4.0")
+                .contact("邮箱 xiehuisheng@hotmail.com")
                 .build();
     }
 
