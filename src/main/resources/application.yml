@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8088
 
 # pxe服务器的信息
 itennis:
