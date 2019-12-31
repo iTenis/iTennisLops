@@ -21,10 +21,11 @@ public class ExeCmdService {
 
     /**
      * 通过指定ip来执行命令
-     * @param ip IP地址
+     *
+     * @param ip   IP地址
      * @param user 用户名
-     * @param pwd 密码
-     * @param cmd 命令
+     * @param pwd  密码
+     * @param cmd  命令
      * @return
      */
 
@@ -34,9 +35,9 @@ public class ExeCmdService {
             jSchUtil = new JSchExecutor(user, pwd, ip);
             jSchUtil.connect();
             jSchUtil.execCmd(cmd);
-            return JsonData.BuildRequest(jSchUtil.getStandardOutput(),StatusCode.STATUS_OK);
+            return JsonData.BuildRequest(jSchUtil.getStandardOutput(), StatusCode.STATUS_OK);
         } catch (Exception e) {
-            return JsonData.BuildRequest(jSchUtil.getStandardOutput(),StatusCode.STATUS_ERROR);
+            return JsonData.BuildRequest(jSchUtil.getStandardOutput(), StatusCode.STATUS_ERROR);
         } finally {
             jSchUtil.disconnect();
         }
@@ -143,6 +144,6 @@ public class ExeCmdService {
         } catch (Exception e) {
             return JsonData.BuildRequest(StatusCode.STATUS_ERROR);
         }
-        return JsonData.BuildRequest(vector,StatusCode.STATUS_OK);
+        return JsonData.BuildRequest(vector, StatusCode.STATUS_OK);
     }
 }

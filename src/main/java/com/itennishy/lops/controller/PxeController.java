@@ -1,5 +1,6 @@
 package com.itennishy.lops.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.itennishy.lops.domain.iTennisConfig;
 import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
@@ -10,11 +11,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(value = "PXE配置类",tags = "PXE配置类")
+import java.util.Map;
+
+@Api(value = "PXE配置类", tags = "PXE配置类")
 @RestController
 @RequestMapping("/pxe")
 public class PxeController {
@@ -68,5 +72,18 @@ public class PxeController {
         } finally {
             jSchUtil.disconnect();
         }
+    }
+
+    @RequestMapping(value = "/remote", method = RequestMethod.POST)
+    public JsonData setPxeRemoteServer(@RequestBody Map<String, Object> data) {
+        JSONArray arrays = JSONArray.parseArray(data.get("data").toString());
+        if (arrays.size() != 1) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        for (Object array : arrays) {
+            String[] objects = JSONArray.parseArray(array.toString()).toArray(new String[0]);
+            return setPxeRemoteServer(objects[1], objects[2], objects[0]);
+        }
+        return JsonData.BuildRequest(StatusCode.STATUS_ERROR);
     }
 }

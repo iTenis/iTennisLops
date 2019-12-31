@@ -1,11 +1,13 @@
 package com.itennishy.lops.utils;
 
+import com.alibaba.fastjson.JSONArray;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.system.ApplicationHome;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class FileUtils {
@@ -78,5 +80,22 @@ public class FileUtils {
         }
         return t;
     }
-
+    public void getContent2File(String filename, Map<String, Object> data) throws IOException {
+        List<String[]> resdata = new ArrayList<>();
+        JSONArray arrays = JSONArray.parseArray(data.get("data").toString());
+        for (Object array : arrays) {
+            String[] objects = JSONArray.parseArray(array.toString()).toArray(new String[0]);
+            resdata.add(objects);
+        }
+        BufferedWriter writer = new BufferedWriter(new FileWriter(new FileUtils().getPath() + "conf" + File.separator + filename, false));
+        StringBuilder sb = new StringBuilder();
+        for (String[] resdatum : resdata) {
+            for (String s : resdatum) {
+                sb.append(s + '\t');
+            }
+            sb.append('\n');
+        }
+        writer.write(sb.toString());
+        writer.close();
+    }
 }

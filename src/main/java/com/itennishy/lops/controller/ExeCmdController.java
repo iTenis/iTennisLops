@@ -1,6 +1,9 @@
 package com.itennishy.lops.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.itennishy.lops.service.NetworkConfigService;
+import com.itennishy.lops.utils.FileUtils;
 import com.itennishy.lops.utils.StatusCode;
 import com.itennishy.lops.executor.JSchExecutor;
 import com.itennishy.lops.service.ExeCmdService;
@@ -11,11 +14,14 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
@@ -73,6 +79,17 @@ public class ExeCmdController {
         return exeCmdService.ExeCmds(conf, cmds);
     }
 
+    @RequestMapping(value = "/config", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonData ExeCmds(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return ExeCmds(data.get("conf").toString(), data.get("cmds"));
+    }
+
     /**
      * 配置时间时区
      * http://127.0.0.1:8081/exec/timezone?conf=hosts.conf&date=2019-12-20 17:48:00
@@ -95,6 +112,18 @@ public class ExeCmdController {
     }
 
 
+    @RequestMapping(value = "/timezone", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonData setTimeZone(@RequestBody Map<String, Object> data) throws ParseException {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return setTimeZone(data.get("conf").toString(), data.get("cmds").toString());
+    }
+
+
     /**
      * 清除MBR引导
      * 解决重装操作系统时进入旧系统问题,重启后操作系统将无法进入原系统
@@ -108,6 +137,16 @@ public class ExeCmdController {
     @RequestMapping(value = "/mbr/clean/all", method = RequestMethod.GET)
     public JsonData ClearMBR(String conf) {
         return exeCmdService.ExeCmds(conf, "dd if=/dev/zero of=/dev/sda bs=1k count=1 && echo 'Clear MBR OK' || echo 'Clear MBR failed'");
+    }
+
+    @RequestMapping(value = "/mbr/clean/all", method = RequestMethod.POST)
+    public JsonData ClearMBR(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return ClearMBR(data.get("conf").toString());
     }
 
     /**
@@ -149,6 +188,16 @@ public class ExeCmdController {
         return JsonData.BuildRequest(resultMap, StatusCode.STATUS_OK);
     }
 
+    @RequestMapping(value = "/checklld", method = RequestMethod.POST)
+    public JsonData checkLLD(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return checkLLD(data.get("conf").toString());
+    }
+
     /**
      * 修改密码
      *
@@ -162,6 +211,16 @@ public class ExeCmdController {
     @RequestMapping(value = "/change/pwd", method = RequestMethod.GET)
     public JsonData changePwd(String conf) {
         return exeCmdService.ExeCmds(conf, "echo ${3} | passwd --stdin root");
+    }
+
+    @RequestMapping(value = "/change/pwd", method = RequestMethod.POST)
+    public JsonData changePwd(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return changePwd(data.get("conf").toString());
     }
 
     /**
@@ -178,6 +237,17 @@ public class ExeCmdController {
     public JsonData changeIp(String conf) {
         return networkConfigService.ChangeIp(conf);
     }
+
+    @RequestMapping(value = "/change/ip", method = RequestMethod.POST)
+    public JsonData changeIp(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return changeIp(data.get("conf").toString());
+    }
+
 
     /**
      * 修改文件内容，全匹配
@@ -229,6 +299,17 @@ public class ExeCmdController {
         return exeCmdService.ExeCmds(conf, cmd);
     }
 
+    @RequestMapping(value = "/find", method = RequestMethod.POST)
+    public JsonData FindPermOrUserFile(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return FindPermOrUserFile(data.get("conf").toString(), data.get("dir").toString(), data.get("perm").toString(), data.get("user").toString());
+    }
+
+
     @ApiOperation(value = "免密配置", notes = "配置该服务器到配置文件中服务器的免密配置")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "conf", value = "配置文件名", dataType = "String", required = true),
@@ -256,6 +337,7 @@ public class ExeCmdController {
         }
         return JsonData.BuildRequest();
     }
+
 
     @ApiOperation(value = "免密配置", notes = "配置文件中服务器之间免密登录")
     @ApiImplicitParams(value = {
@@ -287,6 +369,59 @@ public class ExeCmdController {
         }
         return JsonData.BuildRequest(result, StatusCode.STATUS_OK);
     }
+
+    @RequestMapping(value = "/config/nopwd/all", method = RequestMethod.POST)
+    public JsonData SetNoPwdLogin(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        } catch (Exception e) {
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return SetNoPwdLogin(data.get("conf").toString());
+    }
+
+    @RequestMapping(value = "/config/yum", method = RequestMethod.GET)
+    public JsonData SetYumConfig(String conf, String serverLink) {
+        JsonData result;
+        try {
+            String cmd = "(\n" +
+                    "cat << EOF\n" +
+                    "[remote]\n" +
+                    "name=remote\n" +
+                    "baseurl=" + serverLink + "\n" +
+                    "gpgcheck=0\n" +
+                    "enabled=1\n" +
+                    "EOF\n" +
+                    ") > /etc/yum.repos.d/remote.repo";
+            result = exeCmdService.ExeCmds(conf, cmd);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
+        }
+        return JsonData.BuildRequest(result, StatusCode.STATUS_OK);
+    }
+
+    @RequestMapping(value = "/config/yum", method = RequestMethod.POST)
+    public JsonData SetYumConfig(@RequestBody Map<String, Object> data) {
+        JsonData result;
+        try {
+            String cmd = "(\n" +
+                    "cat << EOF\n" +
+                    "[remote]\n" +
+                    "name=remote\n" +
+                    "baseurl=" + data.get("link") + "\n" +
+                    "gpgcheck=0\n" +
+                    "enabled=1\n" +
+                    "EOF\n" +
+                    ") > /etc/yum.repos.d/remote.repo";
+            result = exeCmdService.ExeCmds(data.get("conf").toString(), cmd);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
+        }
+        return JsonData.BuildRequest(result, StatusCode.STATUS_OK);
+    }
+
 
     @RequestMapping(value = "/testTOP", method = RequestMethod.GET)
     public void test() throws Exception {

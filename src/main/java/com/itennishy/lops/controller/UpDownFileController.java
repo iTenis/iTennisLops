@@ -11,13 +11,11 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -92,7 +90,7 @@ public class UpDownFileController {
      * @param mode   upload或者download
      * @return
      */
-    @ApiOperation(value = "配置RAID", notes = "根据配置文件批量配置RAID")
+    @ApiOperation(value = "文件上传下载", notes = "根据配置文件批量上传和下载")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "remote", value = "远程路径", dataType = "String", required = true),
             @ApiImplicitParam(name = "local", value = "本地路径", dataType = "String", required = true),
@@ -161,5 +159,16 @@ public class UpDownFileController {
             return JsonData.BuildRequest(e.getMessage(), StatusCode.STATUS_ERROR);
         }
         return JsonData.BuildRequest(vector, StatusCode.STATUS_OK);
+    }
+
+
+    @RequestMapping(value = "/config", method = RequestMethod.POST)
+    public JsonData upDownLoadFile(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        }catch (Exception e){
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return upDownLoadFile(data.get("remote").toString(),data.get("local").toString(),data.get("conf").toString(),data.get("mode").toString());
     }
 }

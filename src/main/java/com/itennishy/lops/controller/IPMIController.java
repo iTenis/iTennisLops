@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -112,4 +113,13 @@ public class IPMIController {
         return JsonData.BuildRequest(vector, StatusCode.STATUS_OK);
     }
 
+    @RequestMapping(value = "/config", method = RequestMethod.POST)
+    public JsonData changeIp(@RequestBody Map<String, Object> data) {
+        try {
+            new FileUtils().getContent2File(data.get("conf").toString(), data);
+        }catch (Exception e){
+            return JsonData.BuildRequest(StatusCode.STATUS_NOFUND_CONF);
+        }
+        return setRaid(data.get("conf").toString());
+    }
 }
