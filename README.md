@@ -64,10 +64,19 @@
 
 ## 4、使用的技术栈
 
+#### 4.1、后端使用技术栈
+
 - **SpringBoot2**
 - **SpringCloud Config**
 - **Linux shell**
 - **Swagger2**
+
+#### 4.2、前端使用技术栈
+
+- **Vue**
+- **ElementUI**
+- **vue-router**
+- **axios**
 
 
 
