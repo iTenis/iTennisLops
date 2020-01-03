@@ -1,0 +1,10 @@
+server:
+  port: 8088
+
+
+# 用来配置日志级别
+logging:
+  level:
+    com.itennishy.lops.executor.JSchExecutor: info
+    com.itennishy.lops: info
+  file: logs/itennis.log
