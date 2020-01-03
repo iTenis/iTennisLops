@@ -1,7 +1,7 @@
 {
-  "name": "itennis-lops-frontend",
+  "name": "itennis-lops-vue",
   "version": "1.0.0",
-  "description": "iTennis Lops Linux 运维系统",
+  "description": "iTennis Lops Linux 运维管理系统",
   "author": "iTenis <xiehuisheng@hotmail.com>",
   "private": true,
   "scripts": {
