@@ -1,4 +1,6 @@
 logs
+package-lock.json
+build
 *.log
 /target/
 /jobs/
